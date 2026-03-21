@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitScan - Nutrition Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-leaf"></i>
+            <span>FitScan</span>
+        </div>
+        <div class="nav-menu">
+            <a href="#profile-setup" class="nav-link">Profile</a>
+            <a href="#scanner" class="nav-link">Scanner</a>
+            <a href="#history" class="nav-link">History</a>
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Profile Setup Section -->
+        <section id="profile-setup" class="section">
+            <div class="card">
+                <h2>Tell Us About Yourself</h2>
+                <form id="userProfileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="height" placeholder="170" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="weight" placeholder="70" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="age" placeholder="25" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Activity Level</label>
+                        <select id="activity">
+                            <option value="1.2">Sedentary (little or no exercise)</option>
+                            <option value="1.375">Light (exercise 1-3 days/week)</option>
+                            <option value="1.55">Moderate (exercise 3-5 days/week)</option>
+                            <option value="1.725">Very Active (exercise 6-7 days/week)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Goal</label>
+                        <select id="goal">
+                            <option value="lose">Weight Loss</option>
+                            <option value="maintain">Maintain Weight</option>
+                            <option value="gain">Weight Gain</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Calculate My Needs</button>
+                </form>
+
+                <!-- Daily Goals Display -->
+                <div id="dailyGoals" class="goals-container hidden">
+                    <h3>Your Daily Goals</h3>
+                    <div class="goal-cards">
+                        <div class="goal-card">
+                            <span class="goal-label">Calories</span>
+                            <span class="goal-value" id="dailyCalories">0</span>
+                            <span class="goal-unit">kcal</span>
+                        </div>
+                        <div class="goal-card">
+                            <span class="goal-label">Protein</span>
+                            <span class="goal-value" id="dailyProtein">0</span>
+                            <span class="goal-unit">g</span>
+                        </div>
+                        <div class="goal-card">
+                            <span class="goal-label">Carbs</span>
+                            <span class="goal-value" id="dailyCarbs">0</span>
+                            <span class="goal-unit">g</span>
+                        </div>
+                        <div class="goal-card">
+                            <span class="goal-label">Fats</span>
+                            <span class="goal-value" id="dailyFats">0</span>
+                            <span class="goal-unit">g</span>
+                        </div>
+                    </div>
+
+                    <!-- BMI Display -->
+                    <div class="bmi-card">
+                        <h4>Your BMI</h4>
+                        <div class="bmi-value">
+                            <span id="bmiNumber">0</span>
+                            <span class="bmi-category" id="bmiCategory">-</span>
+                        </div>
+                        <div class="bmi-scale">
+                            <div class="bmi-marker" id="bmiMarker" style="left: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scanner Section (Barcode + Custom) -->
+        <section id="scanner" class="section">
+            <div class="card">
+                <h2>Scan Your Food</h2>
+                
+                <!-- Barcode Input -->
+                <div class="scanner-area">
+                    <div style="width: 100%;">
+                        <label for="barcodeInput" style="display: block; margin-bottom: 0.5rem; color: var(--label-color);">Enter Barcode Number:</label>
+                        <input type="text" id="barcodeInput" placeholder="e.g., 5901234123457" class="search-input">
+                        <button class="btn-primary" onclick="searchByBarcodeInput()">
+                            <i class="fas fa-barcode"></i> Look up Barcode
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Food Toggle -->
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="btn-secondary" onclick="toggleCustomForm()" id="customToggle">
+                        <i class="fas fa-pen"></i> Can't find barcode? Enter custom food
+                    </button>
+                </div>
+
+                <!-- Custom Food Form (hidden by default) -->
+                <div id="customFoodForm" class="custom-food-form hidden" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1rem;">Enter Custom Food</h3>
+                    <div class="form-group">
+                        <label>Food Name</label>
+                        <input type="text" id="customName" placeholder="e.g., Homemade smoothie" class="search-input">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Calories</label>
+                            <input type="number" id="customCalories" placeholder="0" class="search-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Protein (g)</label>
+                            <input type="number" id="customProtein" placeholder="0" class="search-input" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Carbs (g)</label>
+                            <input type="number" id="customCarbs" placeholder="0" class="search-input" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Fats (g)</label>
+                            <input type="number" id="customFats" placeholder="0" class="search-input" step="0.1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Fiber (g) (optional)</label>
+                        <input type="number" id="customFiber" placeholder="0" class="search-input" step="0.1">
+                    </div>
+                    <button class="btn-primary" onclick="addCustomFood()">
+                        <i class="fas fa-plus"></i> Add Custom Food
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="section hidden">
+            <div class="card">
+                <h2>Nutrition Facts</h2>
+                
+                <!-- Food Info -->
+                <div id="foodInfo" class="food-info">
+                    <h3 id="foodName">Product Name</h3>
+                    <div class="nutrition-summary">
+                        <div class="macro-circle">
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <path id="calorieCircle" class="circle" stroke-dasharray="0,100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <text id="caloriePercentage" x="18" y="20.35" class="percentage">0%</text>
+                            </svg>
+                            <span class="macro-label">Daily Value</span>
+                        </div>
+                        
+                        <div class="macro-stats">
+                            <div class="macro-item">
+                                <span class="macro-name">Calories</span>
+                                <span class="macro-value" id="foodCalories">0</span>
+                                <span class="macro-unit">kcal</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="calorieProgress" style="width: 0%"></div>
+                            </div>
+                            
+                            <div class="macro-grid">
+                                <div class="macro-detail">
+                                    <span class="detail-label">Protein</span>
+                                    <span class="detail-value" id="foodProtein">0g</span>
+                                </div>
+                                <div class="macro-detail">
+                                    <span class="detail-label">Carbs</span>
+                                    <span class="detail-value" id="foodCarbs">0g</span>
+                                </div>
+                                <div class="macro-detail">
+                                    <span class="detail-label">Fats</span>
+                                    <span class="detail-value" id="foodFats">0g</span>
+                                </div>
+                                <div class="macro-detail">
+                                    <span class="detail-label">Fiber</span>
+                                    <span class="detail-value" id="foodFiber">0g</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation -->
+                <div class="recommendation-box" id="recommendation">
+                    <h4>💡 Recommendation</h4>
+                    <p id="recommendationText"></p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="addToMeal()">
+                        <i class="far fa-clock"></i> Add to Meal
+                    </button>
+                    <button class="btn-secondary" onclick="scanAnother()">
+                        <i class="fas fa-redo"></i> Scan Another
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Summary -->
+        <section id="dailySummary" class="section">
+            <div class="card">
+                <h2>Today's Summary</h2>
+                <div class="summary-stats">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Calories</span>
+                        <span class="summary-value" id="totalCalories">0</span>
+                        <span class="summary-target">kcal</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Protein</span>
+                        <span class="summary-value" id="totalProtein">0</span>
+                        <span class="summary-target">g</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Carbs</span>
+                        <span class="summary-value" id="totalCarbs">0</span>
+                        <span class="summary-target">g</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Fats</span>
+                        <span class="summary-value" id="totalFats">0</span>
+                        <span class="summary-target"> g</span>
+                    </div>
+                </div>
+                <div class="water-intake">
+                    <h4>💧 Water Intake</h4>
+                    <div class="water-progress">
+                        <div class="water-bar" style="width: 0%"></div>
+                        <span>0L / 2.5L</span>
+                    </div>
+                    <button class="btn-icon" onclick="addWater()"><i class="fas fa-plus"></i> Add Glass</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history" class="section">
+            <div class="card">
+                <h2>Meal History</h2>
+                <div id="historyList" class="history-list">
+                    <p class="empty-history">No meals added yet. Scan or add a food to see it here.</p>
+                </div>
+                <button class="btn-secondary" onclick="clearHistory()" style="margin-top: 1rem;">
+                    <i class="fas fa-trash"></i> Clear All History
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/scanner.js"></script>
+    <script src="js/recommendations.js"></script>
+
+    <script>
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>
